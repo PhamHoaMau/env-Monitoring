@@ -13,6 +13,7 @@ function printHelp() {
   echo "     addrecord ----> addrecord chaincode"
   echo "     query ----> query chaincode"
   echo "     export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/users/Admin@org1.jwclab.com/msp"
+  echo "     export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/users/Admin@org2.jwclab.com/msp"
   echo
 }
 function cc_get_package_id {  
@@ -114,7 +115,7 @@ elif [ "${MODE}" == "createChannel" ]; then
   createChannel
 elif [ "${MODE}" == "fetchChannel" ]; then
   fetchChannel
-elif [ "${MODE}" == "intall" ]; then
+elif [ "${MODE}" == "install" ]; then
   installChainCode
 elif [ "${MODE}" == "commit" ]; then
   commitChaincode
