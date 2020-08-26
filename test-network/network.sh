@@ -17,6 +17,7 @@ function printHelp() {
   echo "  network.sh <Mode> "
   echo "  Modes:"
   echo "     setContext ------> set FABRIC_CFG_PATH + CORE_PEER_MSPCONFIGPATH"
+  echo "     createAnchorPeerTx ------> param num-of-org"
   echo "     createChannel -----> create channel + joinchannel + update anchorpeer "
   echo "     fetchChannel -----> fetch channel + joinchannel + update anchorpeer "
   echo "     install ----> package + install + approvemyorg chaincode definition"
@@ -37,7 +38,7 @@ function setContext() {
   export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/users/Admin@org$org.jwclab.com/msp
 }
 
-function createAncorPeerTx() {
+function createAnchorPeerTx() {
   org=$1
   echo "#######    Generating anchor peer update transaction for Org${org}MSP  ##########"
 	configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org${org}MSPanchors.tx -channelID $CHANNEL_NAME -asOrg Org${org}MSP
@@ -124,8 +125,8 @@ ORG=$2
  
 if [ "${MODE}" == "setContext" ]; then
   setContext $ORG
-elif [ "${MODE}" == "createChannel" ]; then
-  createAncorPeerTx $ORG
+elif [ "${MODE}" == "createAnchorPeerTx" ]; then
+  createAnchorPeerTx $ORG
 elif [ "${MODE}" == "createChannel" ]; then
   createChannel
 elif [ "${MODE}" == "fetchChannel" ]; then
