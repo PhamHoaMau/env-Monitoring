@@ -40,7 +40,7 @@ peers:
       hostnameOverride: peer0.org1.jwclab.com
 certificateAuthorities:
   ca.org1.jwclab.com:
-    url: https://localhost:32769
+    url: https://localhost:7054
     caName: ca-org1
     tlsCACerts:
       pem: 

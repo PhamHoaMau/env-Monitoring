@@ -14,7 +14,7 @@ configtxgen -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBloc
 echo " "
 echo "######### Create channeltx ##########"
 echo " "
-configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/mychannel.tx -channelID mychannel
+configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/mychannel.tx -channelID mychannel 
 echo " "
 echo "######### Create Org1MSP anchorpeer##########"
 echo " "
