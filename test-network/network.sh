@@ -92,21 +92,17 @@ function querycommittedChaincode() {
 function invokeInitChaincode() {
   echo
   echo "Invode init chaincode"
-  peer chaincode invoke -o $ORDERER_ADDRESS --channelID $CC_CHANNEL_ID --name $CC_NAME \
-   --peerAddresses peer0.org1.jwclab.com:7051 --peerAddresses peer0.org2.jwclab.com:9051 \
-   --isInit -c $CC_CONSTRUCTOR
+  peer chaincode invoke -o $ORDERER_ADDRESS --channelID $CC_CHANNEL_ID --name $CC_NAME --peerAddresses peer0.org1.jwclab.com:7051 --peerAddresses peer0.org2.jwclab.com:9051 --isInit -c '{"function":"Instantiate","Args":[]}'
 }
 
 function addRecord() {
   echo
   echo "Add record --> chaincode"
-  peer chaincode invoke -o $ORDERER_ADDRESS --channelID $CC_CHANNEL_ID --name $CC_NAME \
-   --peerAddresses peer0.org1.jwclab.com:7051 --peerAddresses peer0.org2.jwclab.com:9051 \
-   -c '{"function":"AddRecord","Args":["{\"id\":\"DANANG_1\", \"dateTime\":\"2020-11-02 15:04:05\", \"data\":{\"ph\":7, \"hum\":12, \"dust\":1, \"uv\":1, \"tem\":30}}"]}'
+  peer chaincode invoke -o $ORDERER_ADDRESS --channelID $CC_CHANNEL_ID --name $CC_NAME --peerAddresses peer0.org1.jwclab.com:7051 --peerAddresses peer0.org2.jwclab.com:9051 -c '{"function":"AddRecord","Args":["{\"id\":\"DANANG_1\", \"dateTime\":\"2020-11-02 15:04:05\", \"data\":{\"ph\":7, \"hum\":12, \"dust\":1, \"uv\":1, \"tem\":30}}"]}'
 }
 
 function queryChaincode() {
-  peer chaincode query --channelID $CC_CHANNEL_ID --name $CC_NAME -c $CC_QUERY
+  peer chaincode query --channelID $CC_CHANNEL_ID --name $CC_NAME -c '{"function":"QueryRecord","Args":["DANANG_1"]}'
 }
 
 MODE=$1
