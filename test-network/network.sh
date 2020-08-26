@@ -1,16 +1,3 @@
-export CC_CONSTRUCTOR='{"function":"Instantiate","Args":[]}'
-export CC_QUERY='{"function":"QueryRecordHistory","Args":["DANANG_1"]}'
-export CC_NAME=iotrecord
-export CC_PATH=/etc/hyperledger/fabric/chaincode/iotrecord/go
-export CC_VERSION=1.0
-export CC_CHANNEL_ID=mychannel
-export CC_LANGUAGE=golang
-export INTERNAL_DEV_VERSION=1.0
-export CC2_PACKAGE_FOLDER=/etc/hyperledger/fabric/packages
-export CC2_SEQUENCE=1
-export PACKAGE_NAME=iotrecord.1.0-1.0.tar.gz
-export LABEL=iotrecord.1.0-1.0
-
 # Print the usage message
 function printHelp() {
   echo "Usage: "
@@ -23,7 +10,9 @@ function printHelp() {
   echo "     commit ----> commit chaincode definition"
   echo "     querycommitted ----> querycommitted chaincode definition"
   echo "     invokeinit ----> invokeinit chaincode"
+  echo "     addrecord ----> addrecord chaincode"
   echo "     query ----> query chaincode"
+  echo "     export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/users/Admin@org1.jwclab.com/msp"
   echo
 }
 function cc_get_package_id {  
@@ -34,7 +23,7 @@ function cc_get_package_id {
 function setContext() {
   org=$1
   export FABRIC_CFG_PATH=${PWD}/configtx
-  export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/users/Admin@org$org.jwclab.com/msp
+  export CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/fabric/users/Admin@org1.jwclab.com/msp
 }
 
 function createChannel() {
@@ -108,6 +97,14 @@ function invokeInitChaincode() {
    --isInit -c $CC_CONSTRUCTOR
 }
 
+function addRecord() {
+  echo
+  echo "Add record --> chaincode"
+  peer chaincode invoke -o $ORDERER_ADDRESS --channelID $CC_CHANNEL_ID --name $CC_NAME \
+   --peerAddresses peer0.org1.jwclab.com:7051 --peerAddresses peer0.org2.jwclab.com:9051 \
+   -c '{"function":"AddRecord","Args":["{\"id\":\"DANANG_1\", \"dateTime\":\"2020-11-02 15:04:05\", \"data\":{\"ph\":7, \"hum\":12, \"dust\":1, \"uv\":1, \"tem\":30}}"]}'
+}
+
 function queryChaincode() {
   peer chaincode query --channelID $CC_CHANNEL_ID --name $CC_NAME -c $CC_QUERY
 }
@@ -129,6 +126,8 @@ elif [ "${MODE}" == "querycommitted" ]; then
   querycommittedChaincode
 elif [ "${MODE}" == "invokeinit" ]; then
   invokeInitChaincode
+elif [ "${MODE}" == "addrecord" ]; then
+  addRecord
 elif [ "${MODE}" == "query" ]; then
   queryChaincode
 else
