@@ -16,7 +16,11 @@ echo "######### Create channeltx ##########"
 echo " "
 configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/mychannel.tx -channelID mychannel
 echo " "
-echo "######### Create channeltx ##########"
+echo "######### Create Org1MSP anchorpeer##########"
+echo " "
+configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID mychannel -asOrg Org1MSP 
+echo " "
+echo "######### Create Org1MSP anchorpeer##########"
 echo " "
 configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org2MSPanchors.tx -channelID mychannel -asOrg Org2MSP 
 echo " "
