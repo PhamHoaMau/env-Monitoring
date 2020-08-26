@@ -1,0 +1,49 @@
+{
+    "name": "test-network-org${ORG}",
+    "version": "1.0.0",
+    "client": {
+        "organization": "Org${ORG}",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "Org${ORG}": {
+            "mspid": "Org${ORG}MSP",
+            "peers": [
+                "peer0.org${ORG}.jwclab.com"
+            ],
+            "certificateAuthorities": [
+                "ca.eco.jwclab.com"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.org${ORG}.jwclab.com": {
+            "url": "grpc://188.166.218.149:${P0PORT}",
+            "tlsCACerts": {
+                "pem": "${PEERPEM}"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.org${ORG}.jwclab.com",
+                "hostnameOverride": "peer0.org${ORG}.jwclab.com"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.eco.jwclab.com": {
+            "url": "http://128.199.151.251:${CAPORT}",
+            "caName": "ca-org${ORG}",
+            "tlsCACerts": {
+                "pem": ["${CAPEM}"]
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}
