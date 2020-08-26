@@ -18,13 +18,13 @@
                 "peer0.org${ORG}.jwclab.com"
             ],
             "certificateAuthorities": [
-                "ca.eco.jwclab.com"
+                "ca.org${ORG}.jwclab.com"
             ]
         }
     },
     "peers": {
         "peer0.org${ORG}.jwclab.com": {
-            "url": "grpc://188.166.218.144:${P0PORT}",
+            "url": "grpcs://localhost:${P0PORT}",
             "tlsCACerts": {
                 "pem": "${PEERPEM}"
             },
@@ -35,8 +35,8 @@
         }
     },
     "certificateAuthorities": {
-        "ca.eco.jwclab.com": {
-            "url": "http://128.199.151.251:${CAPORT}",
+        "ca.org${ORG}.jwclab.com": {
+            "url": "https://localhost:${CAPORT}",
             "caName": "ca-org${ORG}",
             "tlsCACerts": {
                 "pem": ["${CAPEM}"]
