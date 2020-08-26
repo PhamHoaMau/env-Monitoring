@@ -9,7 +9,7 @@ echo " "
 echo " "
 echo "#########  Generating Orderer Genesis block ##############"
 echo " "
-configtxgen -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBlock ./system-genesis-block/genesis.block
+configtxgen -profile TwoOrgsOrdererGenesis -channelID system-channel -outputBlock ./system-genesis-block/genesis.block 
 echo " "
 echo "######### Create channeltx ##########"
 echo " "
