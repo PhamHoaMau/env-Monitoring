@@ -18,7 +18,7 @@ configtxgen -profile TwoOrgsChannel -outputCreateChannelTx ./channel-artifacts/m
 echo " "
 echo "######### Create channeltx ##########"
 echo " "
-configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID mychannel -asOrg Org1MSP
+configtxgen -profile TwoOrgsChannel -outputAnchorPeersUpdate ./channel-artifacts/Org1MSPanchors.tx -channelID mychannel -asOrg Org1MSP 
 echo " "
 echo "#########  Done. ##############"
 echo " "
