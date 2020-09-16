@@ -17,8 +17,8 @@ setglobal(){
 compareHashFromBlockchain(){
 	setglobal
 	check='false'
-	id=$1
-	hash_query=`peer chaincode query -C mychannel -n iot -c '{"function":"QueryRecordHistoryByTimeRange","Args":["'$id'","2020-09-16T00:00:00Z","2020-09-17T00:00:00Z"]}'`
+	measurement=$1
+	hash_query=`peer chaincode query -C mychannel -n iot -c '{"function":"QueryRecordHistoryByTimeRange","Args":["'$measurement'","2020-09-16T00:00:00Z","2020-09-17T00:00:00Z"]}'`
 	hash_query=${hash_query//',{'/' {'}
 	hash_query=${hash_query//'['/''}
 	hash_query=${hash_query//']'/''}
@@ -34,8 +34,8 @@ compareHashFromBlockchain(){
 		dateTime=`echo ${data[0]} | cut -c10-65`
 		dateTime=${dateTime//'--'/' '}
 		IFS=' ' read -a dateTime_arr <<< "${dateTime}"
-		# printf "${dateTime_arr[0]} ${dateTime_arr[1]}\n"
-		influxdb_hash=`python3 /home/mau/PycharmProjects/envmonitoring/compareHash.py $id ${dateTime_arr[0]} ${dateTime_arr[1]}`
+		# printf "$measurement ${dateTime_arr[0]} ${dateTime_arr[1]}\n"
+		influxdb_hash=`python3 /home/mau/PycharmProjects/envmonitoring/compareHash.py $measurement ${dateTime_arr[0]} ${dateTime_arr[1]}`
 		# echo "$blockchain_hash $influxdb_hash"
 		if [ "$influxdb_hash" == "$blockchain_hash" ]; then 
 			check="true"
@@ -48,36 +48,45 @@ compareHashFromBlockchain(){
 }
 
 mode=$1
+host="178.128.107.247:8088"
 
-if [ "$mode" == "test" ]; then
+while [ true ]; 
+do
+	if [ "$mode" == "test" ]; then
 	echo "test"
-elif [ "$mode" == "backup" ];then
-	dateTime=`date +%H:%M`
-	echo $dateTime
-	databases=$(python3 /home/mau/PycharmProjects/envmonitoring/getNumberOfStations.py)
-	IFS=' ' read -a database_arr <<< "${databases}"
-	if [ "$dateTime" != "00:00" ];then
-		for database in "${database_arr[@]}";
-		do
-			id=$(python3 /home/mau/PycharmProjects/envmonitoring/getDeviceId.py $database)
-			flag=$(compareHashFromBlockchain $id)
-			echo $flag
-			if [ "$flag" = "true" ];then
-				echo "Backup data from influxdb"
-				# influxd backup -portable -database haichau_stations -host 178.128.107.247:8088 -start 2020-09-16T00:00:00Z -end 2020-09-17T00:00:00Z /tmp/backup/
-			else
-				echo "Error when compare hash!!!"
-			fi
-		done
+	elif [ "$mode" == "backup" ];then
+		dateTime=`date -u +%H:%M`
+		echo $dateTime
+		if [ "$dateTime" == "08:58" ];then
+			databases=$(python3 /home/mau/PycharmProjects/envmonitoring/getNumberOfStations.py)
+			IFS=' ' read -a database_arr <<< "${databases}"
+			for database in "${database_arr[@]}";
+			do
+				measurement=$(python3 /home/mau/PycharmProjects/envmonitoring/getDeviceId.py $database)
+				flag=$(compareHashFromBlockchain $measurement)
+				# echo $flag
+				now=`date '+%Y-%m-%dT00:00:00Z'`
+				yesterday=`date -d '1 day ago' '+%Y-%m-%dT00:00:00Z'`
+				if [ "$flag" = "true" ];then
+					echo "Backup data from $measurement database"
+					influxd backup -portable -database $measurement -host $host -start $yesterday -end $now /tmp/backup/$measurement/
+				else
+					echo "Error when compare hash!!!"
+				fi
+			done
+		fi
+		sleep 60
+	elif [ "$mode" == "restore" ];then
+		echo "Restore"
+		# influxd restore -portable -host 178.128.107.247:8088 -db haichau_stations -newdb haichau_bak /tmp/backup/
+	else 
+		echo "Invalid mode!"
+		echo "Mode: test--backup--restore"
+		exit 0
 	fi
-elif [ "$mode" == "restore" ];then
-	echo "Restore"
-	# influxd restore -portable -host 178.128.107.247:8088 -db haichau_stations -newdb haichau_bak /tmp/backup/
-else 
-	echo "Invalid mode!"
-	echo "Mode: test--backup--restore"
-	exit 0
-fi
+done
+
+
 
 
 

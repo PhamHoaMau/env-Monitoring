@@ -64,11 +64,11 @@ while [ true ]; do
 		# peer channel getinfo -c mychannel
 		chaincodeInvokeNoFiltered 
 		# peer chaincode query -C mychannel -n iot -c '{"function":"QueryRecord","Args":["103"]}'
-		sleep 60
+		sleep 600
 	elif [ "$mode" == "query" ];then
 		# peer channel getinfo -c mychannel
 		# peer chaincode query -C mychannel -n iot -c '{"function":"QueryRecordHistory","Args":["101"]}'
-		peer chaincode query -C mychannel -n iot -c '{"function":"QueryRecordHistoryByTimeRange","Args":["101","2020-09-16T00:00:00Z","2020-09-17T00:00:00Z"]}'
+		peer chaincode query -C mychannel -n iot -c '{"function":"QueryRecordHistoryByTimeRange","Args":["lienchieu_stations","2020-09-16T00:00:00Z","2020-09-17T00:00:00Z"]}'
 	elif [ "$mode" == "test" ];then
 		echo "test"
 		

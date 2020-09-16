@@ -4,12 +4,15 @@ import hashlib, time
 import json
 
 client = InfluxDBClient(host='178.128.107.247', port=8086)
-measurements = ['lienchieu_stations', 'haichau_stations', 'camle_stations']
+databases = client.get_list_database()
+measurements = []
+for k in range(1,len(databases)):
+    measurements.append(databases[k]['name'])
 
 for measurement in measurements:
     client.switch_database(measurement)
     result = client.query('select "DEVICE_ID", "time", "TMP", "HUM", "DUST", "PH", "UV" from %s where '
-                          'time >= now() - 610s limit 120' % measurement)
+                          'time >= now() - 10m' % measurement)
     data_list = list(result.get_points(measurement=measurement))
     start = data_list[0]['time']
     end = data_list[-1]['time']
@@ -22,4 +25,4 @@ for measurement in measurements:
         # print(data_list[k])
         data_encoded = json.dumps(data_list[k]).encode()
         hash.update(data_encoded)
-    print("{\"id\":\"%s\",\"dateTime\":\"%s\",\"data\":{\"%s\":\"%s\"}}" %(str(int(id)), start, dateTime, hash.hexdigest()), end=' ')
+    print("{\"id\":\"%s\",\"dateTime\":\"%s\",\"data\":{\"%s\":\"%s\"}}" %(id, start, dateTime, hash.hexdigest()), end=' ')
