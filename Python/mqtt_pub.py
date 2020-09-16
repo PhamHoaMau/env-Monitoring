@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 from random import randrange
 import paho.mqtt.client as mqtt
 import time
