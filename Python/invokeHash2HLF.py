@@ -24,12 +24,12 @@ def get_token():
 def getHashTimeline(device_id):
     client = InfluxDBClient(host='178.128.107.247', port=8086)
     databases = client.get_list_database()
-    flag = False
+    isExistTriggerDB = False
     for k in range(0, len(databases)):
         if databases[k]['name'] == databaseName:
-            flag = True
+            isExistTriggerDB = True
             break
-    if flag:
+    if isExistTriggerDB:
         client.switch_database(databaseName)
         result = client.query('select "%s_hash" from %s' % (device_id, databaseName))
         if len(result) == 0:
@@ -57,9 +57,9 @@ def hashNoFilter():
     for station_id in databases:
         client.switch_database(station_id)
         hash_timeline = getHashTimeline(station_id)
-        print(hash_timeline)
+        # print(hash_timeline)
         result = client.query('select "DEVICE_ID", "time", "TMP", "HUM", "DUST", "PH", "UV" from %s where '
-                              'time > \'%s\'' % (station_id, hash_timeline))
+                              'time >= \'%s\'' % (station_id, hash_timeline))
         # print(result)
         data_list = list(result.get_points(measurement=station_id))
         # print(data_list)
@@ -67,7 +67,7 @@ def hashNoFilter():
         end_time = data_list[-1]['time']
         dateTime = str(start_time) + str("--") + str(end_time)
         station_id = data_list[0]['DEVICE_ID']
-        md5_hash = hashlib.md5()
+
 
         json_body = [
             {
@@ -81,14 +81,16 @@ def hashNoFilter():
         client.switch_database(databaseName)
         client.write_points(json_body)
 
+        md5_hash = hashlib.md5()
         for k in range(0, len(data_list)):
             # print(data_list[k])
             data_encoded = json.dumps(data_list[k]).encode()
             md5_hash.update(data_encoded)
-        hash = {'id': station_id,'dateTime': start_time,'range': dateTime,'hash': md5_hash.hexdigest()}
-        print(hash)
+        hash = {'id': station_id, 'dateTime': start_time, 'range': dateTime, 'hash': md5_hash.hexdigest()}
+        # print(hash)
         hash_arr.append(hash)
     return hash_arr
+
 
 def invokeHash():
     url = "http://identity.jwclab.com:32768/add"
@@ -100,14 +102,14 @@ def invokeHash():
     for data in hash_arr:
         data = json.dumps(data, indent=4)
         response = requests.post(url=url, data=data, headers=headers)
-        print(response.status_code)
+        if response.status_code != 200:
+            print(response.status_code)
 
 
 if __name__ == '__main__':
-    dateTime_default = "2020-01-01T00:00:00Z"
+    datetime_default = "2020-09-23T09:30:00Z"
     databaseName = "trigger_time"
-    # token = get_token()
-    # print(token)
+    print("Invoking hash to Hyperledger Fabric...")
     while True:
         invokeHash()
-        time.sleep(10)
+        time.sleep(60)

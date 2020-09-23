@@ -16,7 +16,7 @@ def get_list_db(influx_client):
 
 
 def getTimeBackup(influxdb_client, trigger_db, station_id, time_now):
-    datetime_default = "2020-01-01T00:00:00Z"
+    datetime_default = "2020-09-23T09:30:00Z"
     databases = influxdb_client.get_list_database()
     isExistDB = False
     for k in range(0, len(databases)):
@@ -80,16 +80,17 @@ def getHashBlockchain(accesstoken, station_id, start_time, end_time):
 def hashDataInfluxdb(station_id, start_time, end_time):
     influx_client = InfluxDBClient(host='178.128.107.247', port=8086)
     influx_client.switch_database(station_id)
-
+    # print(start_time, end_time)
     results = influx_client.query('select "DEVICE_ID", "time", "TMP", "HUM", "DUST", "PH", "UV" from %s where'
                                   ' time >= \'%s\' and time <= \'%s\'' % (station_id, start_time, end_time))
     data_list = list(results.get_points(measurement=station_id))
-
+    # print(data_list[0]['time'], data_list[-1]['time'])
     md5_hash = hashlib.md5()
     for k in range(0, len(data_list)):
         # print(data_list[k])
         data_encoded = json.dumps(data_list[k]).encode()
         md5_hash.update(data_encoded)
+    # print(start_time, end_time, md5_hash.hexdigest())
     return md5_hash.hexdigest()
 
 
@@ -98,31 +99,33 @@ def backupDataToText(influx_client, access_token):
     for station_id in databases:
         print(station_id)
         influx_client.switch_database(station_id)
-        # now = str(datetime.utcnow()).replace(" ", "T") + "Z"
-        now = "2020-09-24T00:00:00Z"
-        # start_time = getTimeBackup(influx_client, database_trigger, station_id, now)
-        # print(type(getTimeBackup(influx_client, database_trigger, station_id, now)))
-        start_time = "2020-09-20T01:19:48.767865Z"
-        # print('select "DEVICE_ID", "time", "TMP", "HUM", "DUST", "PH", "UV" from %s where'
-        #       ' time >= \'%s\' and time <= \'%s\'' % (station_id, start_time, now))
+        now = str(datetime.utcnow()).replace(" ", "T") + "Z"
+        start_time = getTimeBackup(influx_client, database_trigger, station_id, now)
         results = influx_client.query('select "DEVICE_ID", "time", "TMP", "HUM", "DUST", "PH", "UV" from %s where'
                                       ' time >= \'%s\' and time <= \'%s\'' % (station_id, start_time, now))
 
         isvalid = False
         hash_arr = getHashBlockchain(access_token, station_id, start_time, now)
+        # print(hash_arr)
         for k in range(0, len(hash_arr['response'])):
             time_range = str(hash_arr['response'][k]['range']).split("--")
-            start = time_range[0]
+            start = time_range[0][:-8] + 'Z'
             end = datetime.strptime(time_range[1][:-8] + 'Z', '%Y-%m-%dT%H:%M:%SZ') + timedelta(seconds=1)
             blockchain_hash = hash_arr['response'][k]['hash']
             influx_hash = hashDataInfluxdb(station_id, start, end)
             if blockchain_hash != influx_hash:
                 isvalid = False
+                break
             else:
                 isvalid = True
 
         if isvalid:
             data_list = list(results.get_points(measurement=station_id))
+            file_root = "/tmp/backup/"
+            try:
+                os.mkdir(file_root)
+            except:
+                pass
             file_dir = "/tmp/backup/" + station_id + "/"
             try:
                 os.mkdir(file_dir)
@@ -145,5 +148,4 @@ if __name__ == '__main__':
     #     backupDataToText(client)
     #     time.sleep(86400)
     token = get_token()
-    print(token)
     backupDataToText(client, token)
